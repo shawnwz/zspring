@@ -1,6 +1,10 @@
 package org.zhe.framework.beans.factory.support;
 
+import cn.hutool.core.bean.BeanUtil;
+import org.zhe.framework.beans.PropertyValue;
+import org.zhe.framework.beans.PropertyValues;
 import org.zhe.framework.beans.factory.config.BeanDefinition;
+import org.zhe.framework.beans.factory.config.BeanReference;
 import org.zhe.framework.beans.factory.exceptions.BeansException;
 
 import java.lang.reflect.Constructor;
@@ -15,6 +19,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try
 		{
 			bean = createBeanInstance(beanDefinition, beanName, args);
+			applyPropertyValues(beanName, bean, beanDefinition);
 		}
 		catch (Exception e){
 			throw new BeansException("Instantiation of bean failed", e);
@@ -39,6 +44,33 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 		return getInstantiationStrategy().instantiate(beanDefinition, beanName, constructorToUse, args);
+	}
+
+	/**
+	 * Bean propertyValues fill
+	 */
+	protected void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition)
+	{
+		try{
+			PropertyValues propertyValues = beanDefinition.getPropertyValues();
+			for(PropertyValue propertyValue : propertyValues.getPropertyValues())
+			{
+				String name = propertyValue.getName();
+				Object value = propertyValue.getValue();
+
+				if (value instanceof BeanReference){
+					BeanReference beanReference = (BeanReference) value;
+					value = getBean(beanReference.getBeanName());
+				}
+
+				BeanUtil.setFieldValue(bean, name, value);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new BeansException("Error setting property values: " + beanName);
+		}
+
 	}
 
 	public InstantiationStrategy getInstantiationStrategy(){return instantiationStrategy;}

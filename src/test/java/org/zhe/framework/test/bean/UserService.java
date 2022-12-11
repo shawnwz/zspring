@@ -2,24 +2,31 @@ package org.zhe.framework.test.bean;
 
 public class UserService
 {
-	private String name;
+	private String id;
+	private UserDao userDao;
 
-	public UserService() {
-	}
-	public UserService(String name)
-	{
-		this.name = name;
-	}
 	public void queryUserInfo()
 	{
-		System.out.println("Query user info..." + name);
+		System.out.println("Query User Info...:" + userDao.queryUserName(id));
 	}
 
-	@Override
-	public String toString()
+	public String getId()
 	{
-		final StringBuilder sb = new StringBuilder("");
-		sb.append("").append(name);
-		return sb.toString();
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	public UserDao getUserDao()
+	{
+		return userDao;
+	}
+
+	public void setUserDao(UserDao userDao)
+	{
+		this.userDao = userDao;
 	}
 }

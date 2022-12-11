@@ -3,8 +3,12 @@ package org.zhe.framework.test;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
 import org.junit.Test;
+import org.zhe.framework.beans.PropertyValue;
+import org.zhe.framework.beans.PropertyValues;
 import org.zhe.framework.beans.factory.config.BeanDefinition;
+import org.zhe.framework.beans.factory.config.BeanReference;
 import org.zhe.framework.beans.factory.support.DefaultListableBeanFactory;
+import org.zhe.framework.test.bean.UserDao;
 import org.zhe.framework.test.bean.UserService;
 
 import java.lang.reflect.Constructor;
@@ -14,15 +18,24 @@ import java.lang.reflect.InvocationTargetException;
 public class ApiTest
 {
 	@Test
-	public void test_BeanFactory()
-	{
+	public void test_BeanFactory() {
+		// 1.init BeanFactory
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
-		BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+		// 2. UserDao registry
+		beanFactory.registerBeanDefinition("userDao", new BeanDefinition(UserDao.class));
 
+		// 3. UserService set property[uId、userDao]
+		PropertyValues propertyValues = new PropertyValues();
+		propertyValues.addPropertyValue(new PropertyValue("id", "001"));
+		propertyValues.addPropertyValue(new PropertyValue("userDao",new BeanReference("userDao")));
+
+		// 4. UserService inject bean
+		BeanDefinition beanDefinition = new BeanDefinition(UserService.class, propertyValues);
 		beanFactory.registerBeanDefinition("userService", beanDefinition);
 
-		UserService userService = (UserService) beanFactory.getBean("userService", "My Name");
+		// 5. UserService get bean
+		UserService userService = (UserService) beanFactory.getBean("userService");
 		userService.queryUserInfo();
 	}
 
@@ -33,49 +46,4 @@ public class ApiTest
 		System.out.println(userService);
 	}
 
-	@Test
-	public void test_cglib()
-	{
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(UserService.class);
-		enhancer.setCallback(
-				new NoOp() {
-					@Override
-					public int hashCode() {
-						return super.hashCode();
-					}
-				}
-		);
-		Object obj = enhancer.create(new Class[]{String.class}, new Object[]{"My Name"});
-		System.out.println(obj);
-	}
-
-	@Test
-	public void test_constructor() throws NoSuchMethodException, IllegalAccessException,
-			InvocationTargetException, InstantiationException
-	{
-		Class<UserService> userServiceClass = UserService.class;
-		Constructor<UserService> declaredConstructor = userServiceClass.getDeclaredConstructor(String.class);
-		UserService userService = declaredConstructor.newInstance("My Name");
-		System.out.println(userService);
-	}
-
-	@Test
-	public void test_parameterTypes() throws Exception
-	{
-		Class<UserService> beanClass = UserService.class;
-		Constructor<?>[] declaredConstructors = beanClass.getDeclaredConstructors();
-		Constructor<?> constructor = null;
-		for (Constructor<?> ctor : declaredConstructors)
-		{
-			if(ctor.getParameterTypes().length == 1)
-			{
-				constructor = ctor;
-				break;
-			}
-		}
-		Constructor<UserService> declaredConstructor = beanClass.getDeclaredConstructor(constructor.getParameterTypes());
-		UserService userService = declaredConstructor.newInstance("My Name");
-		System.out.println(userService);
-	}
 }
