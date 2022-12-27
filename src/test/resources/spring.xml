@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="userDao" class="org.zhe.framework.test.bean.UserDao"/>
+
+    <bean id="userService" class="org.zhe.framework.test.bean.UserService">
+        <property name="id" value="001"/>
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+</beans>
