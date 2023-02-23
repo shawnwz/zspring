@@ -10,4 +10,7 @@
         <property name="userDao" ref="userDao"/>
     </bean>
 
+    <bean class="org.zhe.framework.test.common.MyBeanPostProcessor"/>
+    <bean class="org.zhe.framework.test.common.MyBeanFactoryPostProcessor"/>
+
 </beans>

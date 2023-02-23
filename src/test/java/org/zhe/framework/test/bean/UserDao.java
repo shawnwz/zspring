@@ -8,9 +8,9 @@ public class UserDao
 	private static Map<String, String> hashMap = new HashMap<>();
 
 	static {
-		hashMap.put("001", "The First Name");
-		hashMap.put("002", "The Second Name");
-		hashMap.put("003", "The Third Name");
+		hashMap.put("10001", "001 Name");
+		hashMap.put("10002", "002 Name");
+		hashMap.put("10003", "003 Name");
 	}
 
 	public String queryUserName(String id)
